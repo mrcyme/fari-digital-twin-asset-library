@@ -11,10 +11,8 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { Vector3, MathUtils, DirectionalLight, AmbientLight } from 'three';
-import { MapControls } from 'three/examples/jsm/controls/MapControls.js';
-import Instance from '@giro3d/giro3d/core/Instance.js';
-import Tiles3D from '@giro3d/giro3d/entities/Tiles3D.js';
+import * as Cesium from 'cesium';
+import 'cesium/Build/Cesium/Widgets/widgets.css';
 
 const props = defineProps({
   tilesetUrl: {
@@ -28,69 +26,30 @@ const emit = defineEmits(['close']);
 const viewerContainer = ref(null);
 const loading = ref(true);
 const error = ref(null);
-let instance;
-
-const placeCameraOnTop = (volume, instance) => {
-    if (!instance) return;
-
-    const center = volume.getCenter(new Vector3());
-    const size = volume.getSize(new Vector3());
-
-    const camera = instance.camera.camera3D;
-    const top = volume.max.z;
-    const fov = camera.fov;
-    const aspect = camera.aspect;
-
-    const hFov = MathUtils.degToRad(fov) / 2;
-    const altitude = (Math.max(size.x / aspect, size.y) / Math.tan(hFov)) * 0.5;
-
-    camera.position.set(center.x, center.y - 1, altitude + top);
-    camera.lookAt(center);
-
-    const controls = new MapControls(camera, instance.domElement);
-    controls.target.copy(center);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-
-    instance.view.setControls(controls);
-    instance.notifyChange(camera);
-}
+let viewer;
 
 onMounted(async () => {
   if (!viewerContainer.value) return;
 
-  Instance.registerCRS(
-    "EPSG:2154",
-    "+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs",
-  );
-
   try {
-    instance = new Instance({
-      target: viewerContainer.value,
-      crs: "EPSG:2154",
-      backgroundColor: 0xcccccc,
+    viewer = new Cesium.Viewer(viewerContainer.value, {
+      timeline: false,
+      animation: false,
+      baseLayerPicker: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      navigationHelpButton: false,
+      infoBox: false,
+      terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://a.tile.openstreetmap.org/'
+      }),
     });
 
-    const sun = new DirectionalLight("#ffffff", 1.4);
-    sun.position.set(1, 0, 1).normalize();
-    instance.scene.add(sun);
-
-    const ambientLight = new AmbientLight(0xffffff, 1);
-    instance.scene.add(ambientLight);
-
-    const tileset = new Tiles3D({
-        url: props.tilesetUrl,
-        id: 'tileset'
-    });
-    
-    await instance.add(tileset);
-    
-    tileset.source.whenReady.then(() => {
-        const volume = tileset.getBoundingBox();
-        placeCameraOnTop(volume, instance);
-    });
-
-    instance.notifyChange();
+    const tileset = await Cesium.Cesium3DTileset.fromUrl(props.tilesetUrl);
+    viewer.scene.primitives.add(tileset);
+    await viewer.zoomTo(tileset);
 
   } catch (err) {
     console.error('Failed to load tileset:', err);
@@ -101,8 +60,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  if (instance) {
-    instance.dispose();
+  if (viewer) {
+    viewer.destroy();
   }
 });
 

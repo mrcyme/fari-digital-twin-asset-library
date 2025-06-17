@@ -6,6 +6,7 @@ import cesium from 'vite-plugin-cesium';
 export default defineConfig({
   plugins: [vue(), cesium()],
   define: {
-    'process.env.API_URL': JSON.stringify('http://0.0.0.0:8080')
+    //'process.env.API_URL': JSON.stringify('http://0.0.0.0:8080')
+    'process.env.API_URL': JSON.stringify('http://57.128.78.8:8080')
   }
 })

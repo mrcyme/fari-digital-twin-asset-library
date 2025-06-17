@@ -28,7 +28,6 @@ const cesiumContainer = ref(null);
 let viewer;
 
 const legendUrl = computed(() => {
-  console.log("yoo");
   const layerInfo = props.mapLayer;
   if (layerInfo && layerInfo.url && layerInfo.layer) {
     const baseUrl = layerInfo.url.split('?')[0];
