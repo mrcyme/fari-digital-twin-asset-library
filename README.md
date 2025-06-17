@@ -48,6 +48,7 @@ To run this project locally, follow these steps:
     The application will be available at `http://localhost:5173` (or another port if 5173 is busy).
 
 4. **Set backend url:**
+
     Set backend url in the vite.config.js
 
 ## Available Scripts
