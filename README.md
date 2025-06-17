@@ -1,5 +1,59 @@
-# Vue 3 + Vite
+# FARI Digital Twin Asset Library
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A web application for managing and visualizing 3D assets and geospatial data for a digital twin. This project provides a user-friendly interface to upload, browse, and view various types of digital twin assets. It is built with Vue 3 and Vite, and it uses libraries like Cesium and Three.js for powerful 2D/3D visualization.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## Features
+
+*   **Asset Management**: Upload, and manage various types of assets:
+    *   3D Models (e.g., glTF)
+    *   3D Tilesets (e.g., Cesium 3D Tiles)
+    *   Point Clouds
+    *   Geospatial Map Layers (WMS)
+*   **Interactive Viewers**: Each asset type has a dedicated interactive viewer:
+    *   A 3D model viewer.
+    *   A Cesium-based viewer for 3D tilesets and point clouds.
+    *   A 2D map viewer for WMS layers with legend support.
+*   **Organized Libraries**: Browse assets in dedicated libraries for maps, 3D tilesets, and point clouds.
+
+## Tech Stack
+
+*   **Frontend**: [Vue 3](https://vuejs.org/) with `<script setup>` SFCs
+*   **Build Tool**: [Vite](https://vitejs.dev/)
+*   **Routing**: [Vue Router](https://router.vuejs.org/)
+*   **3D/Geospatial Visualization**:
+    *   [CesiumJS](https://cesium.com/platform/cesiumjs/)
+    *   [Three.js](https://threejs.org/)
+    *   [Giro3D](https://giro3d.org/)
+*   **HTTP Client**: [Axios](https://axios-http.com/)
+
+## Project Setup
+
+To run this project locally, follow these steps:
+
+1.  **Clone the repository:**
+    ```sh
+    git clone <repository-url>
+    cd fari-digital-twin-asset-library
+    ```
+
+2.  **Install dependencies:**
+    ```sh
+    npm install
+    ```
+
+3.  **Run the development server:**
+    ```sh
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5173` (or another port if 5173 is busy).
+
+4. **Set backend url:**
+    Set backend url in the vite.config.js
+
+## Available Scripts
+
+In the project directory, you can run the following commands:
+
+*   `npm run dev`: Runs the app in development mode.
+*   `npm run build`: Builds the app for production to the `dist` folder.
+*   `npm run preview`: Serves the production build locally to preview it.
