@@ -46,15 +46,12 @@ const fetchMapLayers = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await axios.get(process.env.API_URL + '/maps-manager');
+    const response = await axios.get(process.env.API_URL + '/maps-manager/all');
     const data = response.data;
-
-    if (data && data.layer && typeof data.layer === 'object') {
-      // Handle the case where the API returns {"layer": {...}}
-      mapLayers.value = [data.layer];
-    } else if (Array.isArray(data)) {
-      // Handle the case where the API returns a proper array [...]
-      mapLayers.value = data;
+    console.log(data);
+    if (Array.isArray(data)) {
+      // The API returns an array of objects, each with a 'layer' property.
+      mapLayers.value = data
     } else {
       console.warn("Received unexpected data format for map layers:", data);
       mapLayers.value = [];
@@ -71,7 +68,7 @@ const fetchMapLayers = async () => {
 const deleteMapLayer = async (layer) => {
   try {
     // Assuming a delete endpoint that takes url and layer as query params
-    await axios.delete(`${API_URL}/delete?url=${encodeURIComponent(layer.url)}&layer=${encodeURIComponent(layer.layer)}`);
+    await axios.delete(`${process.env.API_URL}/maps-manager/delete?url=${encodeURIComponent(layer._url)}`);
     mapLayers.value = mapLayers.value.filter(l => !(l.url === layer.url && l.layer === layer.layer));
   } catch (err) {
     console.error('Error deleting map layer:', err);

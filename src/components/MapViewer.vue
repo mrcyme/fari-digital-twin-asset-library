@@ -2,24 +2,18 @@
   <div class="modal-overlay" @click.self="closeViewer">
     <div class="modal-content">
       <button class="close-button" @click="closeViewer">&times;</button>
-      <div ref="viewerContainer" class="viewer-container"></div>
-      <div v-if="loading" class="loading-indicator">Initializing Map Viewer...</div>
-      <div v-if="error" class="error-message">{{ error }}</div>
+      <div ref="cesiumContainer" class="viewer-container"></div>
+      <div v-if="legendUrl" class="legend-container">
+        <img :src="legendUrl" alt="Map Legend" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { OSM } from "ol/source";
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { MapControls } from 'three/examples/jsm/controls/MapControls.js';
-import Instance from '@giro3d/giro3d/core/Instance.js';
-import Map from '@giro3d/giro3d/entities/Map.js';
-import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer.js';
-import Extent from '@giro3d/giro3d/core/geographic/Extent.js';
-import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js';
-import WmsSource from '@giro3d/giro3d/sources/WmsSource.js';
-import XYZ from 'ol/source/XYZ.js';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import * as Cesium from 'cesium';
+import 'cesium/Build/Cesium/Widgets/widgets.css';
 
 const props = defineProps({
   mapLayer: {
@@ -30,94 +24,69 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const viewerContainer = ref(null);
-const loading = ref(true);
-const error = ref(null);
-let instance;
+const cesiumContainer = ref(null);
+let viewer;
+
+const legendUrl = computed(() => {
+  console.log("yoo");
+  const layerInfo = props.mapLayer;
+  if (layerInfo && layerInfo.url && layerInfo.layer) {
+    const baseUrl = layerInfo.url.split('?')[0];
+    console.log(`${baseUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&FORMAT=image/png&LAYER=${layerInfo.layer}`)
+    return `${baseUrl}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&FORMAT=image/png&LAYER=${layerInfo.layer}`;
+  }
+  return '';
+});
 
 const closeViewer = () => {
   emit('close');
 };
 
-onMounted(async () => {
-  if (!viewerContainer.value) return;
-
-  try {
-    console.log('Initializing map viewer with layer:', props.mapLayer);
-    
-    // Use EPSG:3857 (Web Mercator) for the map instance
-    
-    // Create a more focused extent for Brussels area
-    instance = new Instance({
-      target: viewerContainer.value,
-      crs: "EPSG:3857",
-    });
-
-    const extent = new Extent('EPSG:4326',{ 
-      west: 4.25,
-      south: 50.75,
-      north: 50.95,
-      east: 4.45,
-    }
-    ).as(instance.referenceCrs);
-    
-    const map = new Map({ extent });
-    instance.add(map);
-
-    map.addLayer(
-      new ColorLayer({
-        name: "OSM",
-        source: new TiledImageSource({ source: new OSM() }),
+onMounted(() => {
+  if (cesiumContainer.value) {
+    viewer = new Cesium.Viewer(cesiumContainer.value, {
+      imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+        url: 'https://tile.openstreetmap.org/'
       }),
-    );
-
-    // Add the user-defined WMS layer on top
-    const wmsSource = new WmsSource({
-        url: props.mapLayer.url,
-        layer: props.mapLayer.layer, // Changed to match the map CRS
-        imageFormat: 'image/png',
-        transparent: true,
-        projection: 'EPSG:4326',
+      sceneMode: Cesium.SceneMode.SCENE2D,
+      baseLayerPicker: false,
+      timeline: false,
+      animation: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      navigationHelpButton: false,
     });
 
+    if (props.mapLayer && props.mapLayer.url && props.mapLayer.layer) {
+      viewer.imageryLayers.addImageryProvider(
+        new Cesium.WebMapServiceImageryProvider({
+          url: props.mapLayer.url,
+          layers: props.mapLayer.layer,
+          parameters: {
+            service: 'WMS',
+            transparent: true,
+            format: 'image/png'
+          },
+        })
+      );
+    }
 
-    const colorLayer = new ColorLayer({
-        name: props.mapLayer.layer,
-        source: wmsSource,
-        opacity: 0.8,
+    viewer.camera.setView({
+      destination: Cesium.Rectangle.fromDegrees(4.25, 50.75, 4.45, 50.95)
     });
-
-
-    console.log('Adding layer to map:', colorLayer);
-    map.addLayer(colorLayer);
-
-    const controls = new MapControls(instance.view.camera, instance.domElement);
-    controls.enableDamping = true;
-    instance.view.setControls(controls);
-
-
-    console.log('Notifying change and updating view');
-    instance.notifyChange();
-    instance.view.update();
-
-  } catch (err) {
-    console.error('Failed to initialize map viewer:', err);
-    error.value = 'Error initializing map viewer. Please check layer details.';
-  } finally {
-    loading.value = false;
   }
 });
 
 onBeforeUnmount(() => {
-  if (instance) {
-    instance.dispose();
+  if (viewer) {
+    viewer.destroy();
   }
 });
 
 </script>
 
 <style scoped>
-/* Reusing styles from PointCloudViewer */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -132,7 +101,7 @@ onBeforeUnmount(() => {
 }
 .modal-content {
   position: relative;
-  background-color: white;
+  background-color: #000;
   padding: 0;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -153,7 +122,7 @@ onBeforeUnmount(() => {
   right: 15px;
   font-size: 20px;
   font-weight: bold;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -164,17 +133,18 @@ onBeforeUnmount(() => {
   line-height: 32px;
   text-align: center;
 }
-.loading-indicator, .error-message {
+.legend-container {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  background-color: rgba(0,0,0,0.8);
-  padding: 15px;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
   border-radius: 5px;
+  z-index: 1005;
 }
-.error-message {
-  color: #ffcccc;
+.legend-container img {
+  max-width: 200px;
+  max-height: 300px;
+  display: block;
 }
 </style> 
