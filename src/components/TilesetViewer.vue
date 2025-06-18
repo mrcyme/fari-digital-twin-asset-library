@@ -49,6 +49,27 @@ onMounted(async () => {
 
     const tileset = await Cesium.Cesium3DTileset.fromUrl(props.tilesetUrl);
     viewer.scene.primitives.add(tileset);
+    
+    const style = new Cesium.Cesium3DTileStyle({
+      color: {
+        conditions: [
+          ["${TYPE} === 'ROOFSURFACE'", "color('red')"],
+          ["true", "color('white')"],
+        ],
+      },
+    });
+
+    const removeListener = tileset.tileLoad.addEventListener((tile) => {
+      const content = tile.content;
+      if (content && content.featuresLength > 0) {
+        const feature = content.getFeature(0);
+        if (feature.hasProperty('TYPE')) {
+          tileset.style = style;
+          removeListener(); 
+        }
+      }
+    });
+
     await viewer.zoomTo(tileset);
 
   } catch (err) {
