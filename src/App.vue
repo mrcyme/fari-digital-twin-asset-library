@@ -5,6 +5,7 @@
       <router-link to="/pointclouds">Point Cloud Library</router-link>
       <router-link to="/maps">Map Library</router-link>
       <router-link to="/tilesets">Tileset Library</router-link>
+      <router-link to="/demo">Demo</router-link>
     </nav>
     <router-view />
   </div>

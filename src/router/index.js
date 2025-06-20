@@ -3,6 +3,7 @@ import AssetLibrary from '../views/AssetLibrary.vue';
 import PointCloudLibrary from '../views/PointCloudLibrary.vue';
 import MapLibrary from '../views/MapLibrary.vue';
 import TilesetLibrary from '../views/TilesetLibrary.vue';
+import DemoView from '../views/DemoView.vue';
 
 const routes = [
   {
@@ -28,6 +29,11 @@ const routes = [
     path: '/tilesets',
     name: 'TilesetLibrary',
     component: TilesetLibrary,
+  },
+  {
+    path: '/demo',
+    name: 'Demo',
+    component: DemoView,
   },
 ];
 
