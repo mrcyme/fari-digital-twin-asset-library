@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+/*
+---break---
+
+ */
+@custom-variant dark (&:is(.dark *));
 
 @layer base {
   :root {
@@ -147,7 +153,6 @@
   }
 }
 
-
 /*
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -229,5 +234,12 @@ button:focus-visible {
   }
 }
 
-
  */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
