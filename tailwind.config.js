@@ -6,7 +6,7 @@ module.exports = {
     ],
     theme: {
         extend: {
-            // si tu veux, tu peux y étendre tes couleurs – mais rien d’obligatoire
+            //
         },
     },
     plugins: [],

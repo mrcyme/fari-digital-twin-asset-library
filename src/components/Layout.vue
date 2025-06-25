@@ -4,9 +4,10 @@ import Header from "./Header.vue";
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <main class="container pb-10">
+  <div>
       <Header />
+    <main>
+      <slot/>
     </main>
   </div>
 

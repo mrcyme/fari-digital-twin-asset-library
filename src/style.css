@@ -1,9 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
-/*
----break---
 
- */
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
@@ -40,7 +38,7 @@
     --sidebar-border: oklch(0.87 0.01 261.81);
     --sidebar-ring: oklch(0.59 0.20 277.06);
 
-    --font-sans: Inter, sans-serif;
+    --font-sans: DM Sans, sans-serif;
     --font-serif: Merriweather, serif;
     --font-mono: JetBrains Mono, monospace;
 
@@ -238,6 +236,7 @@ button:focus-visible {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    font-family: var(--font-sans), sans-serif;
   }
   body {
     @apply bg-background text-foreground;
