@@ -2,7 +2,7 @@
 
 import Layout from "../components/Layout.vue";
 import {Button} from "@/components/ui/button";
-import bxlScreenshot from '/public/assets/bxl_screenshot.png'
+import bxlScreenshot from '/src/assets/bxl_screenshot.png'
 
 </script>
 <template>
