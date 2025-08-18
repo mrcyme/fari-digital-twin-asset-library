@@ -48,8 +48,9 @@ const initializeViewer = () => {
       geocoder: false,
       homeButton: false,
       sceneModePicker: false,
+      selectionIndicator: true,
       navigationHelpButton: false,
-      infoBox: false,
+      infoBox: true,
       imageryProvider: new Cesium.OpenStreetMapImageryProvider({
         url: 'https://a.tile.openstreetmap.org/'
       }),
